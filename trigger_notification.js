@@ -45,9 +45,14 @@ async function sendNotification() {
     }
 
     const message = {
+        notification: {
+            title: title,
+            body: body,
+        },
         data: {
             title: title,
             body: body,
+            click_action: "https://maestro.fabric.inc"
         },
         webpush: {
             fcm_options: {

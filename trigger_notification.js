@@ -33,16 +33,8 @@ async function sendNotification() {
 
     const album = getDailyAlbum();
 
-    let title = "Maestro";
-    let body = `C'est l'heure de la musique !`;
-
-    if (hour === 14) {
-        title = "Album du jour 🎵";
-        body = `Aujourd'hui : ${album.title} par ${album.artist}. Venez noter !`;
-    } else if (hour === 20) {
-        title = "Session du soir 🌙";
-        body = `Avez-vous écouté ${album.title} ? Donnez votre avis avant minuit !`;
-    }
+    let title = "Album du jour 🎵";
+    let body = `Aujourd'hui : ${album.title} par ${album.artist}. Venez noter !`;
 
     const message = {
         notification: {

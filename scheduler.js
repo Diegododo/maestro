@@ -29,16 +29,8 @@ console.log("Waiting for 14h and 20h...");
 async function sendDailyNotification(hour) {
     const album = getDailyAlbum(new Date());
 
-    let title = "Maestro";
-    let body = `C'est l'heure de la musique !`;
-
-    if (hour === 14) {
-        title = "Album du jour 🎵";
-        body = `Aujourd'hui : ${album.title} par ${album.artist}. Viens écouter bordel !`;
-    } else if (hour === 20) {
-        title = "Session du soir 🌙";
-        body = `T'as écouté ${album.title} ?`;
-    }
+    let title = "Album du jour 🎵";
+    let body = `Aujourd'hui : ${album.title} par ${album.artist}. Viens écouter bordel !`;
 
     const message = {
         notification: {
@@ -109,11 +101,6 @@ async function sendDailyNotification(hour) {
 // 2:00 PM (14h)
 cron.schedule("0 14 * * *", () => {
     sendDailyNotification(14);
-});
-
-// 8:00 PM (20h)
-cron.schedule("0 20 * * *", () => {
-    sendDailyNotification(20);
 });
 
 // TEST IMMEDIAT (décommente pour tester tout de suite)

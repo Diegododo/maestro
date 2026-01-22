@@ -33,8 +33,8 @@ async function sendNotification() {
 
     const album = getDailyAlbum();
 
-    let title = "Album du jour";
-    let body = `Aujourd'hui : ${album.title} par ${album.artist}. Viens écouter bordel !`;
+    let title = "Onlyfans";
+    let body = `Votre abonnement à SexyBunny53 expire demain !`;
 
     const message = {
         notification: {

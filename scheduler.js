@@ -28,13 +28,13 @@ async function sendDailyNotification(hour) {
     }
 
     const message = {
-        notification: {
+        data: {
             title: title,
             body: body,
         },
         webpush: {
             fcm_options: {
-                link: "https://maestro.fabric.inc" // Or localhost for now
+                link: "https://maestro.fabric.inc"
             }
         }
     };

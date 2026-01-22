@@ -20,9 +20,9 @@ const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
     console.log('[sw.js] Background message: ', payload);
-    const title = payload.notification?.title || 'Maestro';
+    const title = payload.notification?.title || payload.data?.title || 'Maestro';
     const options = {
-        body: payload.notification?.body || '',
+        body: payload.notification?.body || payload.data?.body || '',
         icon: './images/logo.png',
         badge: './images/logo.png'
     };

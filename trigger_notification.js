@@ -50,13 +50,13 @@ async function sendNotification() {
     }
 
     const message = {
-        notification: {
+        data: {
             title: title,
             body: body,
         },
         webpush: {
             fcm_options: {
-                link: "https://maestro.fabric.inc" // Replace with your real URL if hosted elsewhere
+                link: "https://maestro.fabric.inc"
             }
         }
     };

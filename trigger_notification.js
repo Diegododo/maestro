@@ -60,7 +60,7 @@ async function sendNotification() {
             }
         }
     };
-
+    console.log(`Sending Message: ${title} - ${body}`);
     try {
         console.log(`🚀 Starting notification job for ${hour}h...`);
 

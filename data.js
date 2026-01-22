@@ -1,4 +1,4 @@
-window.allAlbums = [
+const allAlbums = [
     {
         "title": "OK Computer",
         "artist": "Radiohead",
@@ -3729,3 +3729,9 @@ window.allAlbums = [
         "genre": "post-punk-revival"
     }
 ];
+
+if (typeof window !== 'undefined') {
+    window.allAlbums = allAlbums;
+} else if (typeof module !== 'undefined' && module.exports) {
+    module.exports = allAlbums;
+}

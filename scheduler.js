@@ -10,21 +10,34 @@ admin.initializeApp({
 const messaging = admin.messaging();
 const db = admin.firestore();
 
+const allAlbums = require("./data.js");
+const LAUNCH_DATE_STR = '2026-01-07';
+const LAUNCH_DATE = new Date(LAUNCH_DATE_STR); LAUNCH_DATE.setHours(0, 0, 0, 0);
+
+function getDailyAlbum(dateInput) {
+    const d = dateInput ? new Date(dateInput) : new Date();
+    d.setHours(0, 0, 0, 0);
+    const diffDays = Math.floor((d - LAUNCH_DATE) / (1000 * 60 * 60 * 24));
+    const index = diffDays < 0 ? 0 : diffDays % allAlbums.length;
+    return allAlbums[index];
+}
+
 console.log("⏰ Maestro Scheduler Started");
 console.log("Waiting for 14h and 20h...");
 
 // 2. Define the Notification Sending Logic
 async function sendDailyNotification(hour) {
-    let title = "Maestro";
-    let body = `C'est l'heure de la musique ! (${hour}h)`;
+    const album = getDailyAlbum(new Date());
 
-    // Customize message based on hour
+    let title = "Maestro";
+    let body = `C'est l'heure de la musique !`;
+
     if (hour === 14) {
-        title = "OnlyFans";
-        body = "Votre abonnement OnlyFans à SexyBunny53 expire demain !";
+        title = "Album du jour 🎵";
+        body = `Aujourd'hui : ${album.title} par ${album.artist}. Venez noter !`;
     } else if (hour === 20) {
         title = "Session du soir 🌙";
-        body = "Dernière chance pour noter l'album d'aujourd'hui !";
+        body = `Avez-vous écouté ${album.title} ? Donnez votre avis avant minuit !`;
     }
 
     const message = {
@@ -42,17 +55,18 @@ async function sendDailyNotification(hour) {
     try {
         // FETCH TOKENS FROM DB
         const tokensSnap = await db.collection('tokens').get();
-        const tokens = [];
+        const tokensSet = new Set();
         tokensSnap.forEach(doc => {
-            if (doc.data().token) tokens.push(doc.data().token);
+            if (doc.data().token) tokensSet.add(doc.data().token);
         });
+        const tokens = Array.from(tokensSet);
 
         if (tokens.length === 0) {
             console.log("⚠️ No tokens found in DB. Make sure to enable notifications in the web app first.");
             return;
         }
 
-        console.log(`[${hour}h] Sending to ${tokens.length} devices found in DB...`);
+        console.log(`[${hour}h] Sending to ${tokens.length} unique devices found in DB...`);
 
         // Send multicast (efficient for < 500 tokens)
         // If tokens > 500, we need to batch. For now, simple loop or multicast method.
@@ -72,10 +86,12 @@ async function sendDailyNotification(hour) {
             response.responses.forEach((resp, idx) => {
                 if (!resp.success) {
                     failedTokens.push(tokens[idx]);
+                    // Check error code to see if token is invalid
+                    // resp.error.code
                 }
             });
-            console.log('List of invalid tokens to cleanup:', failedTokens);
-            // Optional: Delete invalid tokens from DB here
+            console.log('List of failed tokens:', failedTokens);
+            // Optional: Delete invalid tokens from DB here if error is 'messaging/registration-token-not-registered'
         }
 
     } catch (error) {

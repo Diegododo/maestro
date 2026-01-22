@@ -1,17 +1,12 @@
 const admin = require("firebase-admin");
+const allAlbums = require("./data.js");
 
 // Determine behavior: "Is this a test?" or "Auto-detect hour"
 // Usage: node trigger_notification.js [hour]
-// Example: node trigger_notification.js 14 -> Force send 14h message
-// Example: node trigger_notification.js -> Auto-detect based on current UTC time
-
 const args = process.argv.slice(2);
 let forceHour = args[0] ? parseInt(args[0]) : null;
 
 // Initialize Firebase
-// In GitHub Actions, we'll write the secret to a file 'service-account.json'
-// Or simpler: we can check if file exists, if not, try env var?
-// Let's assume the workflow writes the file.
 const serviceAccount = require("./service-account.json");
 
 admin.initializeApp({
@@ -21,32 +16,32 @@ admin.initializeApp({
 const messaging = admin.messaging();
 const db = admin.firestore();
 
+// CONSTANTS
+const LAUNCH_DATE_STR = '2026-01-07';
+const LAUNCH_DATE = new Date(LAUNCH_DATE_STR); LAUNCH_DATE.setHours(0, 0, 0, 0);
+
+function getDailyAlbum() {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const diffDays = Math.floor((today - LAUNCH_DATE) / (1000 * 60 * 60 * 24));
+    const index = diffDays < 0 ? 0 : diffDays % allAlbums.length;
+    return allAlbums[index];
+}
+
 async function sendNotification() {
-    // Current Time in Paris (approx)
-    // GitHub Actions servers are usually UTC.
-    // Paris is UTC+1 (Winter) or UTC+2 (Summer).
-    // Let's be smart: The CRON triggers at specific UTC times.
-    // We just rely on the argument passed by the CRON workflow, OR default to generic.
+    // Simplify: We will pass the hour explicitly in the YML file.
+    const hour = forceHour || 14;
 
-    // If no argument, we guess based on UTC hour
-    const now = new Date();
-    const utcHour = now.getUTCHours();
-
-    // 14h Paris = 13h UTC (Winter) / 12h UTC (Summer)
-    // 20h Paris = 19h UTC (Winter) / 18h UTC (Summer)
-
-    // Simplify: We will pass the hour explicitly in the YML file to avoid timezone headaches.
-    const hour = forceHour || 14; // Default to 14 if lost
+    const album = getDailyAlbum();
 
     let title = "Maestro";
     let body = `C'est l'heure de la musique !`;
 
     if (hour === 14) {
-        title = "OnlyFans";
-        body = "Votre abonnement OnlyFans à SexyBunny53 expire demain !";
+        title = "Album du jour 🎵";
+        body = `Aujourd'hui : ${album.title} par ${album.artist}. Venez noter !`;
     } else if (hour === 20) {
         title = "Session du soir 🌙";
-        body = "Dernière chance pour noter l'album d'aujourd'hui !";
+        body = `Avez-vous écouté ${album.title} ? Donnez votre avis avant minuit !`;
     }
 
     const message = {
@@ -65,17 +60,19 @@ async function sendNotification() {
         console.log(`🚀 Starting notification job for ${hour}h...`);
 
         const tokensSnap = await db.collection('tokens').get();
-        const tokens = [];
+        const tokensSet = new Set();
         tokensSnap.forEach(doc => {
-            if (doc.data().token) tokens.push(doc.data().token);
+            if (doc.data().token) tokensSet.add(doc.data().token);
         });
+
+        const tokens = Array.from(tokensSet);
 
         if (tokens.length === 0) {
             console.log("⚠️ No tokens found. Exiting.");
             process.exit(0);
         }
 
-        console.log(`Found ${tokens.length} tokens.`);
+        console.log(`Found ${tokens.length} unique tokens.`);
 
         const response = await messaging.sendEachForMulticast({
             tokens: tokens,
@@ -84,6 +81,11 @@ async function sendNotification() {
         });
 
         console.log(`✅ Sent! Success: ${response.successCount}, Failed: ${response.failureCount}`);
+
+        if (response.failureCount > 0) {
+            console.log("Failed tokens cleanup is not implemented in trigger_notification.js (see scheduler.js for reference)");
+        }
+
         process.exit(0);
 
     } catch (error) {

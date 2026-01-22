@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Maestro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="images/logo.png?v=2">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="images/logo.png?v=2">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+
+<body>
+    <!-- DEFS FOR HALF STAR -->
+    <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1"
+        xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="halfGrad">
+                <stop offset="50%" stop-color="var(--accent)" />
+                <stop offset="50%" stop-color="#444" />
+            </linearGradient>
+            <symbol id="icon-star" viewBox="0 0 24 24">
+                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+            </symbol>
+        </defs>
+    </svg>
+
+    <svg style="display: none;">
+        <symbol id="icon-star" viewBox="0 0 24 24">
+            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+        </symbol>
+    </svg>
+
+    <div id="bg-layer" class="immersive-bg"></div>
+    <div class="noise-overlay"></div>
+
+    <div class="glass-container">
+
+        <section class="hero-section">
+            <div class="top-nav">
+                <div class="brand">MAESTRO<span class="dot">.</span></div>
+                <div id="streakBadge" class="streak-pill hidden">🔥 <span id="streakValue">0</span></div>
+                <div id="archiveBadge" class="tag-pill hidden">ARCHIVE</div>
+            </div>
+
+            <div class="album-display">
+                <div class="vinyl-wrapper" onclick="openSpotify()" title="Ouvrir l'application Spotify">
+                    <div class="vinyl-disc">
+                        <div class="vinyl-label"></div>
+                    </div>
+                    <img id="albumImg" src="" alt="Album Cover" class="cover-art">
+                    <div class="shine-overlay"></div>
+
+                    <div class="hover-overlay">
+                        <svg width="50" height="50" viewBox="0 0 24 24" fill="white">
+                            <path d="M8 5v14l11-7z" />
+                        </svg>
+                        <span class="play-text">ÉCOUTER SUR<br>SPOTIFY</span>
+                    </div>
+                </div>
+
+                <div class="album-info">
+                    <h1 id="title" class="skeleton skeleton-text" style="width: 80%; height: 3.5rem;">C.....</h1>
+                    <h2 id="artist" class="skeleton skeleton-text" style="width: 50%; height: 1.5rem;">.....</h2>
+
+                    <div class="meta-badges">
+                        <span id="meta-year" class="meta-pill skeleton">----</span>
+                        <span id="meta-genre" class="meta-pill skeleton">----</span>
+                    </div>
+                </div>
+
+                <div id="maestroBlock" class="maestro-badge hidden">
+                    <span>SCORE MAESTRO</span>
+                    <div class="score-row">
+                        <strong id="maestroValue">--</strong>
+                        <div id="maestroStars" class="mini-stars"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="interaction-section">
+            <div class="glass-panel">
+
+                <div class="panel-header">
+                    <div class="tabs">
+                        <button class="tab-btn active" onclick="switchTab('reviews')">Avis</button>
+                        <button class="tab-btn" onclick="switchTab('calendar')">Archives</button>
+                        <button class="tab-btn" onclick="switchTab('chat')">Chat</button>
+                    </div>
+                    <div id="authContainer" class="auth-box"></div>
+                </div>
+
+                <div class="panel-content">
+
+                    <div id="view-reviews" class="view active">
+                        <div id="loginPrompt" class="empty-state">Connecte-toi pour rejoindre le club.</div>
+
+                        <div id="reviewForm" class="input-card hidden">
+                            <div class="rating-header">
+                                <span>TA NOTE</span>
+                                <div class="star-rating" id="starInput"></div>
+                                <span id="currentRatingDisplay" class="rating-num">0</span>
+                            </div>
+                            <input type="text" id="favTrackInput" placeholder="Ton morceau pref">
+                            <textarea id="commentText" placeholder="Partage ton ressenti..."></textarea>
+                            <button onclick="submitReview()" class="btn-submit">PUBLIER</button>
+                        </div>
+
+                        <div id="reviewsList" class="reviews-feed"></div>
+                    </div>
+
+                    <div id="view-chat" class="view">
+                        <div class="chat-container">
+                            <div id="chatMessages" class="chat-messages">
+                                <div class='empty-state'>Chargement du chat...</div>
+                            </div>
+                            <div class="chat-input-area hidden" id="chatInputArea">
+                                <input type="text" id="chatInput" placeholder="Message..."
+                                    onkeypress="if(event.key==='Enter') sendChatMessage()">
+                                <button onclick="sendChatMessage()">➤</button>
+                            </div>
+                            <div id="chatLoginPrompt" class="empty-state" style="margin-top:20px;">Connecte-toi pour
+                                chatter.</div>
+                        </div>
+                    </div>
+
+                    <div id="view-calendar" class="view">
+                        <div class="cal-nav">
+                            <button onclick="changeMonth(-1)">←</button>
+                            <span id="calTitle">...</span>
+                            <button onclick="changeMonth(1)">→</button>
+                        </div>
+                        <div id="calendarGrid" class="cal-grid"></div>
+                        <button onclick="backToToday()" class="btn-secondary">REVENIR À AUJOURD'HUI</button>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+        <div style="position:fixed; bottom:5px; right:5px; opacity:0.3; font-size:10px; pointer-events:none;">v7.1</div>
+    </div>
+
+
+
+    <!-- MOBILE NAVIGATION DOTS -->
+    <div class="mobile-nav-dots">
+        <span class="nav-dot active" onclick="scrollToSlide(0)"></span>
+        <span class="nav-dot" onclick="scrollToSlide(1)"></span>
+    </div>
+
+    <div id="profileModal" class="modal-backdrop">
+        <div class="modal-glass">
+            <button class="btn-close" onclick="closeProfile()">✕</button>
+            <div class="modal-body">
+                <img id="prof-img" src="">
+                <h3 id="prof-name">User</h3>
+                <div class="stats-row">
+                    <div class="stat">
+                        <span id="stat-count" class="val">0</span>
+                        <span class="lbl">Avis</span>
+                    </div>
+                    <div class="stat">
+                        <span id="stat-avg" class="val">0</span>
+                        <span class="lbl">Moyenne</span>
+                    </div>
+                </div>
+                <div class="stat full">
+                    <span class="lbl">Genre Favori</span>
+                    <span id="stat-genre" class="val text">...</span>
+                </div>
+
+                <div class="stat full">
+                    <button onclick="toggleNotifications()" class="btn-notif" id="btnNotif">🔔 ACTIVER LES
+                        NOTIFICATIONS</button>
+                    <button onclick="signOutUser()" class="btn-logout">DÉCONNEXION</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONFIRMATION MODAL (MOVED OUTSIDE) -->
+    <div id="confirmModal" class="modal-backdrop">
+        <div class="modal-glass" style="max-width: 300px; text-align: center;">
+            <div class="modal-body">
+                <h3>Supprimer cet avis ?</h3>
+                <p style="color:var(--text-muted); margin-bottom:20px;">Cette action est irréversible.</p>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button onclick="closeConfirmModal()" class="btn-logout" style="margin-top:0;">NON</button>
+                    <button onclick="confirmDeleteAction()" class="btn-submit"
+                        style="margin-top:0; background: var(--danger); color: white;">OUI</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script type="module" src="app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW registered!', reg))
+                    .catch(err => console.log('SW failed', err));
+            });
+        }
+    </script>
+</body>
+
+</html>

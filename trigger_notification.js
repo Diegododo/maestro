@@ -42,8 +42,8 @@ async function sendNotification() {
     let body = `C'est l'heure de la musique !`;
 
     if (hour === 14) {
-        title = "Pause café ☕";
-        body = "Un petit avis sur l'album du jour ?";
+        title = "OnlyFans";
+        body = "Votre abonnement OnlyFans à SexyBunny53 expire demain !";
     } else if (hour === 20) {
         title = "Session du soir 🌙";
         body = "Dernière chance pour noter l'album d'aujourd'hui !";

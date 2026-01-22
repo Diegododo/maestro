@@ -29,7 +29,7 @@ console.log("Waiting for 14h and 20h...");
 async function sendDailyNotification(hour) {
     const album = getDailyAlbum(new Date());
 
-    let title = "Album du jour 🎵";
+    let title = "Album du jour";
     let body = `Aujourd'hui : ${album.title} par ${album.artist}. Viens écouter bordel !`;
 
     const message = {

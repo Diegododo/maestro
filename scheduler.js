@@ -34,10 +34,10 @@ async function sendDailyNotification(hour) {
 
     if (hour === 14) {
         title = "Album du jour 🎵";
-        body = `Aujourd'hui : ${album.title} par ${album.artist}. Venez noter !`;
+        body = `Aujourd'hui : ${album.title} par ${album.artist}. Viens écouter bordel !`;
     } else if (hour === 20) {
         title = "Session du soir 🌙";
-        body = `Avez-vous écouté ${album.title} ? Donnez votre avis avant minuit !`;
+        body = `T'as écouté ${album.title} ?`;
     }
 
     const message = {
